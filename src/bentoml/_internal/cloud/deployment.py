@@ -602,10 +602,10 @@ class Deployment:
         client = get_rest_api_client(context)
         return DeploymentInfo(
             name=res.name,
-            admin_console=f"{client.v1.endpoint}/deployments/{res.name}/access?cluster={res.cluster.name}&namespace={res.kube_namespace}",
+            admin_console=f"{client.v1.endpoint}/deployments/{res.name}/access?cluster={res.cluster.display_name}&namespace={res.kube_namespace}",
             created_at=res.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             created_by=res.creator.name,
-            cluster=res.cluster.name,
+            cluster=res.cluster.display_name,
             _schema=res,
             _context=context,
             _urls=urls,
@@ -686,7 +686,7 @@ class Deployment:
         cls._fix_and_validate_schema(config_struct)
 
         res = cloud_rest_client.v2.update_deployment(
-            cluster=deployment_schema.cluster.name,
+            cluster=deployment_schema.cluster.display_name,
             name=name,
             update_schema=config_struct,
         )
@@ -718,10 +718,10 @@ class Deployment:
                 )
             if (
                 deployment_config_params.get_cluster(pop=False)
-                != deployment_schema.cluster.name
+                != deployment_schema.cluster.display_name
             ):
                 raise BentoMLException(
-                    f"Deployment cluster cannot be changed, current cluster is {deployment_schema.cluster.name}"
+                    f"Deployment cluster cannot be changed, current cluster is {deployment_schema.cluster.display_name}"
                 )
             config_struct = bentoml_cattr.structure(
                 deployment_config_params.get_config_dict(), UpdateDeploymentSchemaV2
@@ -731,7 +731,7 @@ class Deployment:
             res = cloud_rest_client.v2.update_deployment(
                 name=name,
                 update_schema=config_struct,
-                cluster=deployment_schema.cluster.name,
+                cluster=deployment_schema.cluster.display_name,
             )
             logger.debug("Deployment Schema: %s", config_struct)
             return cls._generate_deployment_info_(context, res, res.urls)

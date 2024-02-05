@@ -70,6 +70,7 @@ class OrganizationListSchema(BaseListSchema):
 
 @attr.define
 class ClusterSchema(ResourceSchema):
+    display_name: str
     description: str
     organization_name: str
     creator: UserSchema
